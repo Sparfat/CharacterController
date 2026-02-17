@@ -1,25 +1,20 @@
 # Bloqueia tudo por padrão
 /*
 
-# Permite a pasta Assets (mas não o conteúdo dela ainda)
+# Permite a pasta Assets
 !/Assets/
-
-# Bloqueia tudo dentro de Assets
 /Assets/*
 
-# Abre exceção para a pasta de Scripts e todo o seu conteúdo
+# Abre exceção para a sua pasta de jogo específica
+!/Assets/01_Game/
+/Assets/01_Game/*
+
+# Permite os Scripts e Settings dentro de 01_Game
 !/Assets/01_Game/Scripts/
 !/Assets/01_Game/Scripts/**
-
-# Abrir exceção para as configurações de Input e Data
 !/Assets/01_Game/Settings/
 !/Assets/01_Game/Settings/**
-!/Assets/01_Game/Scripts/Player/Data/
-!/Assets/01_Game/Scripts/Player/Data/**
 
-# Se você quiser salvar os arquivos .meta dos scripts (RECOMENDADO)
-!/Assets/01_Game/Scripts/**/*.meta
-
-# Permite o arquivo .gitignore e o README
+# Permite arquivos essenciais na raiz
 !.gitignore
 !README.md
