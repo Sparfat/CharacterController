@@ -1,16 +1,75 @@
+using MyGame.Player.Input;
+using MyGame.Player.StateMachine;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+namespace MyGame.Player.Core
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    [RequireComponent(typeof(CharacterController))]
+    public class PlayerController : MonoBehaviour
     {
-        
-    }
+        [Header("References")]
+        [SerializeField] private InputReader _inputReader;
+        [SerializeField] private Animator _animator;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        //Internal references
+        public CharacterController CharController { get; private set; }
+        public PlayerStateMachine StateMachine { get; private set; }
+
+        [Header("Movement Settings")]
+        public float WalkSpeed = 5f;
+        public float RunSpeed = 10f;
+        public float Gravity = -9.81f;
+
+        //Movement control variables
+        [HideInInspector] public Vector2 MoveInput;
+        [HideInInspector] public Vector3 ForceVelocity; //For gravity and force
+
+        private void Awake()
+        {
+            StateMachine = new PlayerStateMachine();
+
+            //Here we instatiate the first state
+
+        }
+
+        private void OnEnable()
+        {
+            // Assining the events to the input reader
+            _inputReader.MoveEvent += OnMove;
+        }
+
+        private void OnDisable()
+        {
+            // Unsubscribing the events to avoid memory leaks
+            _inputReader.MoveEvent -= OnMove;
+        }
+
+        private void Update()
+        {
+            // State Machine comands logic
+            StateMachine.CurrentState?.UpdateState();
+
+            ApplyGravity();
+        }
+
+        private void FixedUpdate()
+        {
+            // State Machine physics comands 
+            StateMachine.CurrentState?.FixedUpdateState();
+        }
+
+        private void OnMove(Vector2 input) => MoveInput = input;
+
+        private void ApplyGravity()
+        {
+            if(CharController.isGrounded && ForceVelocity.y < 0)
+            {
+                ForceVelocity.y = -2f; //Small value to keep the player grounded
+            }
+
+            ForceVelocity.y += Gravity * Time.deltaTime;
+            CharController.Move(ForceVelocity * Time.deltaTime);
+        }
+
     }
 }

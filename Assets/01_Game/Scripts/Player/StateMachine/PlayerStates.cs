@@ -1,16 +1,13 @@
 using UnityEngine;
 
-public class PlayerStates : MonoBehaviour
+namespace MyGame.Palyer.StateMachine
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public enum StatePriority
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        Low = 0,
+        Medium = 1,
+        High = 2,
+        Critical = 3
     }
 }
+
