@@ -8,17 +8,17 @@
 /Assets/*
 
 # Abre exceção para a pasta de Scripts e todo o seu conteúdo
-!/Assets/Scripts/
-!/Assets/Scripts/**
+!/Assets/01_Game/Scripts/
+!/Assets/01_Game/Scripts/**
 
 # Abrir exceção para as configurações de Input e Data
-!/Assets/Settings/
-!/Assets/Settings/**
-!/Assets/Scripts/Player/Data/
-!/Assets/Scripts/Player/Data/**
+!/Assets/01_Game/Settings/
+!/Assets/01_Game/Settings/**
+!/Assets/01_Game/Scripts/Player/Data/
+!/Assets/01_Game/Scripts/Player/Data/**
 
 # Se você quiser salvar os arquivos .meta dos scripts (RECOMENDADO)
-!/Assets/Scripts/**/*.meta
+!/Assets/01_Game/Scripts/**/*.meta
 
 # Permite o arquivo .gitignore e o README
 !.gitignore
