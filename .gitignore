@@ -1,0 +1,25 @@
+# Bloqueia tudo por padrão
+/*
+
+# Permite a pasta Assets (mas não o conteúdo dela ainda)
+!/Assets/
+
+# Bloqueia tudo dentro de Assets
+/Assets/*
+
+# Abre exceção para a pasta de Scripts e todo o seu conteúdo
+!/Assets/Scripts/
+!/Assets/Scripts/**
+
+# Abrir exceção para as configurações de Input e Data
+!/Assets/Settings/
+!/Assets/Settings/**
+!/Assets/Scripts/Player/Data/
+!/Assets/Scripts/Player/Data/**
+
+# Se você quiser salvar os arquivos .meta dos scripts (RECOMENDADO)
+!/Assets/Scripts/**/*.meta
+
+# Permite o arquivo .gitignore e o README
+!.gitignore
+!README.md
