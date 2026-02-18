@@ -12,24 +12,34 @@ namespace MyGame.Player.Core
         [SerializeField] private Animator _animator;
 
         //Internal references
+        public Animator Animator => _animator;
+        public InputReader InputReader => _inputReader;
         public CharacterController CharController { get; private set; }
         public PlayerStateMachine StateMachine { get; private set; }
 
         [Header("Movement Settings")]
-        public float WalkSpeed = 5f;
-        public float RunSpeed = 10f;
+        public float WalkSpeed = 2f;
+        public float RunSpeed = 6f;
         public float Gravity = -9.81f;
+        public float RotationSpeed = 15f;
 
         //Movement control variables
         [HideInInspector] public Vector2 MoveInput;
+        [HideInInspector] public float MoveSpeed; // State defines if is Walk or Run
         [HideInInspector] public Vector3 ForceVelocity; //For gravity and force
 
         private void Awake()
         {
+            CharController = GetComponent<CharacterController>();
             StateMachine = new PlayerStateMachine();
-
             //Here we instatiate the first state
 
+        }
+
+        private void Start()
+        {
+            // Starts at GroundedState (Idle/Walk/Run)
+            StateMachine.Initialize(new States.PlayerGroundedState(this, StateMachine));
         }
 
         private void OnEnable()
@@ -68,7 +78,7 @@ namespace MyGame.Player.Core
             }
 
             ForceVelocity.y += Gravity * Time.deltaTime;
-            CharController.Move(ForceVelocity * Time.deltaTime);
+            
         }
 
     }
