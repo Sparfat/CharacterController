@@ -1,3 +1,3 @@
 # CharacterController
 
-## Modular Character Controller using FSM and New Input System.
+<p>Modular Character Controller using FSM and New Input System.</p>
