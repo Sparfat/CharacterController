@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace MyGame.Palyer.StateMachine
+namespace MyGame.Player.StateMachine
 {
     public enum StatePriority
     {

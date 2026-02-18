@@ -1,4 +1,4 @@
-using MyGame.Palyer.StateMachine;
+using MyGame.Player.StateMachine;
 using MyGame.Player.Core;
 using UnityEngine;
 
