@@ -28,9 +28,22 @@ namespace MyGame.Player.Core
         [HideInInspector] public float MoveSpeed; // State defines if is Walk or Run
         [HideInInspector] public Vector3 ForceVelocity; //For gravity and force
 
-        [Header("Jump Settings")]
+        [Header("Jump & Fall Settings")]
         public float JumpForce = 5f;
         [Range(0, 1)] public float AirControl = 0.5f; // 0 = No control; 1 = Full control
+        public int MaxJumps = 2; // 1 = Normal, 2 = Double Jump
+        [HideInInspector] public int CurrentJumpCount = 0;
+
+        [Header("Input Buffering")]
+        public float JumpBufferTime = 0.2f; // Tempo que o jogo "lembra" que você apertou pular
+        private float _jumpBufferTimer;
+
+        [Tooltip("Distancia de queda para ativar o Fall Large e tomar dano")]
+        public float HardFallDistance = 5f;
+
+        [Tooltip("Distancia do chão para tocar a animação de antecipação de aterrissagem")]
+        public float LandingAnticipationDistance = 1.5f;
+        public LayerMask GroundLayer; // For Raycast not to ignore the ground
 
         private void Awake()
         {
@@ -50,16 +63,23 @@ namespace MyGame.Player.Core
         {
             // Assining the events to the input reader
             _inputReader.MoveEvent += OnMove;
+            _inputReader.JumpEvent += OnJumpInput;
         }
 
         private void OnDisable()
         {
             // Unsubscribing the events to avoid memory leaks
             _inputReader.MoveEvent -= OnMove;
+            _inputReader.JumpEvent -= OnJumpInput;
         }
 
         private void Update()
         {
+            if (_jumpBufferTimer > 0)
+            {
+                _jumpBufferTimer -= Time.deltaTime;
+            }
+
             // State Machine comands logic
             StateMachine.CurrentState?.UpdateState();
 
@@ -89,6 +109,21 @@ namespace MyGame.Player.Core
         public void ResetGravity()
         {
             ForceVelocity.y = -2f;
+        }
+
+        private void OnJumpInput()
+        {
+            _jumpBufferTimer = JumpBufferTime;
+        }
+
+        public bool ConsumeJumpInput()
+        {
+            if (_jumpBufferTimer > 0)
+            {
+                _jumpBufferTimer = 0;
+                return true;
+            }
+            return false;
         }
 
     }

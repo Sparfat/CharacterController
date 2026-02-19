@@ -21,7 +21,12 @@ namespace MyGame.Player.States
         private const float TimeUntilVariant = 7.0f;
         private readonly List<int> _idleVariantHases; // Animations hash list
 
-        public PlayerGroundedState(Core.PlayerController context, PlayerStateMachine stateMachine) : base(context, stateMachine)
+        private bool _isHardLanding;
+        private float _landingCooldownTimer;
+        private const float BasicLandingCooldown = 0.2f; // Tempo de inviabilidade de pulo na aterrissagem suave
+        private const float HardLandingRecoveryTime = 1.5f; // Tempo travado no chão tomando dano
+
+        public PlayerGroundedState(Core.PlayerController context, PlayerStateMachine stateMachine, bool isHardLanding = false) : base(context, stateMachine)
         {
             Priority = StatePriority.Low;
 
@@ -37,13 +42,46 @@ namespace MyGame.Player.States
 
         public override void EnterState()
         {
-            // BlendTree Locomotion
-            ctx.Animator.CrossFade("Locomotion", 0.05f);
-            _idleTimer = 0f;
+            ctx.CurrentJumpCount = 0; // Reseta os pulos ao tocar o chão!
+            ctx.ResetGravity();
+
+            if (_isHardLanding)
+            {
+                // Toca animação pesada de rolar no chão ou tomar dano
+                ctx.Animator.CrossFade("Hard_Landing", 0.1f);
+                _landingCooldownTimer = HardLandingRecoveryTime;
+
+                // Aqui você chamaria ctx.TakeDamage(10) por exemplo!
+            }
+            else
+            {
+                // Se já estávamos com input, ele vai tocar o Follow Through automaticamente via Locomotion Blend Tree.
+                // Se estiver parado, toca um "Soft_Landing" rápido.
+                ctx.Animator.CrossFade("Locomotion", 0.1f);
+                _landingCooldownTimer = BasicLandingCooldown; // Cooldown básico
+            }
+
         }
 
         public override void UpdateState()
         {
+            // Diminui o timer de recuperação
+            if (_landingCooldownTimer > 0)
+            {
+                _landingCooldownTimer -= Time.deltaTime;
+
+                // Se for um Hard Landing, NÃO PERMITE MOVIMENTO enquanto se recupera
+                if (_isHardLanding) return;
+            }
+
+            // Check jump
+            if (ctx.ConsumeJumpInput() && _landingCooldownTimer <= 0)
+            {
+                stateMachine.ChangeState(new PlayerJumpState(ctx, stateMachine));
+                return; // Sai do Update para não processar movimento no mesmo frame
+            }
+
+
             // 1. Check Inputs and define movement
             CheckMovementLogic();
 
@@ -52,6 +90,14 @@ namespace MyGame.Player.States
 
             // 3. Check Transitions (Ex: Jump, Attack)
             CheckTransitions();
+
+            // Check falling
+            if (!ctx.CharController.isGrounded && ctx.ForceVelocity.y < -0.5f) // Reduzi de -2f para -0.5f para detectar mais rápido
+            {
+                ApplyLedgeNudge(); // Aplica o empurrãozinho
+                stateMachine.ChangeState(new PlayerFallState(ctx, stateMachine));
+            }
+
         }
 
         public override void FixedUpdateState()
@@ -63,6 +109,7 @@ namespace MyGame.Player.States
         public override void ExitState()
         {
             // Reset flags
+
         }
 
         // --- Movement Logic ---
@@ -195,6 +242,23 @@ namespace MyGame.Player.States
         {
             // Change States
             // if (ctx.IsJumpPressed) stateMachine.ChangeState(new PlayerJumpState(ctx, stateMachine));
+        }
+
+        private void ApplyLedgeNudge()
+        {
+            // Só empurra se o jogador estiver se movendo. Se ele foi empurrado parado por um inimigo, não fazemos nada.
+            if (ctx.MoveInput.sqrMagnitude > 0.1f)
+            {
+                // Força extra parametrizável (você pode colocar isso no PlayerController depois)
+                float nudgeForce = 2.0f;
+
+                // Empurra o personagem na direção em que ele está olhando
+                Vector3 nudgeVector = ctx.transform.forward * nudgeForce;
+
+                // Aplica o movimento imediatamente usando o CharacterController para descolar da quina
+                // Usamos Time.deltaTime puro aqui porque é um "micro-teleporte" de 1 frame de correção
+                ctx.CharController.Move(nudgeVector * Time.deltaTime);
+            }
         }
 
     }

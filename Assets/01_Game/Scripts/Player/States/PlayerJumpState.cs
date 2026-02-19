@@ -1,31 +1,34 @@
 using MyGame.Player.StateMachine;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace MyGame.Player.States
 {
     public class PlayerJumpState : PlayerBaseState
     {
-        private readonly int JumpHash = Animator.StringToHash("JumpStart");
+        private readonly int JumpHash = Animator.StringToHash("JumpTree");
 
         public PlayerJumpState(Core.PlayerController context, PlayerStateMachine machine) : base(context, machine)
         {
-            Priority = StatePriority.Medium; // Jump has priority over locomotion
+            Priority = StatePriority.High; // Jump has priority over falling for double jump
         }
 
         public override void EnterState()
         {
-            // 1. Apply phisical force
+            // Consume 1 jump
+            ctx.CurrentJumpCount++;
+
+            // Reset the vertical speed before applying the new force (Crucial for Double Jump not to crash)
+            ctx.ForceVelocity.y = 0f;
             ctx.ForceVelocity.y = ctx.JumpForce;
 
-            // 2. Play animation
+            // Play Jump BlendTree
             ctx.Animator.CrossFade(JumpHash, 0.1f);
         }
 
         public override void UpdateState()
         {
             // Allow air movement (Air Control)
-            HandelAirMovement();
+            HandleAirMovement();
 
             // Change to fall
             if(ctx.ForceVelocity.y <= 0)
