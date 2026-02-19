@@ -28,6 +28,10 @@ namespace MyGame.Player.Core
         [HideInInspector] public float MoveSpeed; // State defines if is Walk or Run
         [HideInInspector] public Vector3 ForceVelocity; //For gravity and force
 
+        [Header("Jump Settings")]
+        public float JumpForce = 5f;
+        [Range(0, 1)] public float AirControl = 0.5f; // 0 = No control; 1 = Full control
+
         private void Awake()
         {
             CharController = GetComponent<CharacterController>();
@@ -79,6 +83,12 @@ namespace MyGame.Player.Core
 
             ForceVelocity.y += Gravity * Time.deltaTime;
             
+        }
+
+        // To reset gravity after jump
+        public void ResetGravity()
+        {
+            ForceVelocity.y = -2f;
         }
 
     }
